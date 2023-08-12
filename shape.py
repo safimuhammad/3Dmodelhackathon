@@ -81,13 +81,13 @@ if __name__ == "__main__":
     seed_value = random.randint(1, 9999)
     prompts = [
         (
-            """Render a round top, dining table with three legs. The tabletop dimensions should be 380 cm in length and 380 cm in width.""",
+            """Render a modern round top,wooden dining table with. The tabletop dimensions should be 380 cm in length and 380 cm in width.""",
             "table_top",
              random.randint(1, 9999),
         ),
         (
             # """Render identical table  for the The tabletop dimensions should be 120 cm in length and 80 cm in width and 30cm thick. Each leg should have a height of 75 cm tabletop should be invisible.""",
-            """a vase of flowers, length 8cm x-axis length and 8cm y-axis width """,
+            """beautiful vase, length 8cm x-axis length and 8cm y-axis width """,
             "table_vase",
             random.randint(1, 9999), 
         ),
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     for prompt, filename, seed in prompts:
         thread = threading.Thread(
-            target=process_prompt, args=(prompt, filename, seed, 16, 64, result_queue)
+            target=process_prompt, args=(prompt, filename, seed, 18, 64, result_queue)
         )
         thread.start()
         threads.append(thread)
