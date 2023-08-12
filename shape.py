@@ -37,9 +37,21 @@ def get_model(prompt, filename, seed=1, guidance=16, steps=64):
     return None
 
 
-def combine_model(model1, model2, filename):
-    print(model1,"     ",model2)
-    
+def combine_model(model1=None, model2=None, filename=None,color1=None,color2=None):
+    if model1 == None:return None
+    if model2 == None :return None
+    if filename == None :return None
+    colors={'red':[255, 0, 0, 255],
+    'green': [0, 255, 0, 255],
+    'blue': [0, 0, 255, 255],
+    'yellow': [255, 255, 0, 255],
+    'cyan': [0, 255, 255, 255],
+    'magenta': [255, 0, 255, 255],
+    'white': [255, 255, 255, 255],
+    'black': [0, 0, 0, 255]}
+
+   
+
     increase_scale = 2.3
     decrease_scale = 0.2
     model1_glb = trimesh.load(model1)
@@ -47,6 +59,7 @@ def combine_model(model1, model2, filename):
    
     first_model = trimesh.load_mesh(f"{model1[:-4]}.obj")
     first_model.vertices *= increase_scale
+    first_model.visual.vertex_colors = colors[color1.lower()]
     
     min_y, max_y = first_model.bounds[:, 1]
     height = (max_y - min_y)/1.5
@@ -59,6 +72,7 @@ def combine_model(model1, model2, filename):
     second_model = trimesh.load_mesh(f"{model2[:-4]}.obj")
     # second_model.apply_scale(increase_scale)
     second_model.vertices *= decrease_scale
+    second_model.visual.vertex_colors = colors[color2.lower()]
     second_model.vertices[:, 1] += y_offset
 
 
@@ -66,9 +80,10 @@ def combine_model(model1, model2, filename):
 
     # Save the combined mesh to a new .obj file
     combined.export(f"models/{filename}.glb")
+    
 
 
-def process_prompt(prompt, filename, seed=1, guidance=18, steps=64, result_queue=None):
+def process_prompt(prompt, filename, seed=1, guidance=16, steps=64, result_queue=None):
     result = get_model(prompt, filename, seed, guidance, steps)
     if result:
         model_path = f"models/{filename}.glb"
@@ -112,7 +127,7 @@ if __name__ == "__main__":
     # Check if all models were successfully generated
     if all(model_path is not None for model_path in model_paths):
         # Combine the models
-        combine_model('models/table_top.glb','models/table_vase.glb', "final_chair_model")
+        combine_model('models/table_top.glb','models/table_vase.glb', "final_chair_model",'red','cyan')
         # You can add more combining logic here for additional chair parts
         print("All chair components successfully combined into a final model.")
     else:
