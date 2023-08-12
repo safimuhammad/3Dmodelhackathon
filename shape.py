@@ -7,6 +7,7 @@ import trimesh
 from queue import Queue
 import random
 
+
 def get_model(prompt, filename, seed=1, guidance=16, steps=64):
     try:
         client = Client("https://hysts-shap-e.hf.space/")
@@ -37,44 +38,45 @@ def get_model(prompt, filename, seed=1, guidance=16, steps=64):
     return None
 
 
-def combine_model(model1=None, model2=None, filename=None,color1=None,color2=None):
-    if model1 == None:return None
-    if model2 == None :return None
-    if filename == None :return None
-    colors={'red':[255, 0, 0, 255],
-    'green': [0, 255, 0, 255],
-    'blue': [0, 0, 255, 255],
-    'yellow': [255, 255, 0, 255],
-    'cyan': [0, 255, 255, 255],
-    'magenta': [255, 0, 255, 255],
-    'white': [255, 255, 255, 255],
-    'black': [0, 0, 0, 255],
-    'orange': [255, 165, 0],
-    'purple': [128, 0, 128],
-    'pink': [255, 192, 203],
-    'brown': [165, 42, 42],
-    'gray': [128, 128, 128],
-    'maroon': [128, 0, 0],
-    'olive': [128, 128, 0],
-    'navy': [0, 0, 128],
-    'teal': [0, 128, 128],
-    
+def combine_model(model1=None, model2=None, filename=None, color1=None, color2=None):
+    if model1 == None:
+        return None
+    if model2 == None:
+        return None
+    if filename == None:
+        return None
+    colors = {
+        "red": [255, 0, 0, 255],
+        "green": [0, 255, 0, 255],
+        "blue": [0, 0, 255, 255],
+        "yellow": [255, 255, 0, 255],
+        "cyan": [0, 255, 255, 255],
+        "magenta": [255, 0, 255, 255],
+        "white": [255, 255, 255, 255],
+        "black": [0, 0, 0, 255],
+        "orange": [255, 165, 0],
+        "purple": [128, 0, 128],
+        "pink": [255, 192, 203],
+        "brown": [165, 42, 42],
+        "gray": [128, 128, 128],
+        "maroon": [128, 0, 0],
+        "olive": [128, 128, 0],
+        "navy": [0, 0, 128],
+        "teal": [0, 128, 128],
     }
-
-   
 
     increase_scale = 2.3
     decrease_scale = 0.2
     model1_glb = trimesh.load(model1)
     model1_glb.export(f"{model1[:-4]}.obj")
-   
+
     first_model = trimesh.load_mesh(f"{model1[:-4]}.obj")
     first_model.vertices *= increase_scale
     first_model.visual.vertex_colors = colors[color1.lower()]
-    
+
     min_y, max_y = first_model.bounds[:, 1]
-    height = (max_y - min_y)/1.5
-    
+    height = (max_y - min_y) / 1.5
+
     # Calculate the desired offset for the second model based on the height of the first model
     y_offset = height
 
@@ -86,12 +88,10 @@ def combine_model(model1=None, model2=None, filename=None,color1=None,color2=Non
     second_model.visual.vertex_colors = colors[color2.lower()]
     second_model.vertices[:, 1] += y_offset
 
-
-    combined = trimesh.util.concatenate(first_model,second_model)
+    combined = trimesh.util.concatenate(first_model, second_model)
 
     # Save the combined mesh to a new .obj file
     combined.export(f"models/{filename}.glb")
-    
 
 
 def process_prompt(prompt, filename, seed=1, guidance=16, steps=64, result_queue=None):
@@ -109,36 +109,34 @@ if __name__ == "__main__":
         (
             """Render a modern round top,wooden dining table with. The tabletop dimensions should be 380 cm in length and 380 cm in width.""",
             "table_top",
-             random.randint(1, 9999),
+            random.randint(1, 9999),
         ),
         (
             # """Render identical table  for the The tabletop dimensions should be 120 cm in length and 80 cm in width and 30cm thick. Each leg should have a height of 75 cm tabletop should be invisible.""",
             """beautiful vase, length 8cm x-axis length and 8cm y-axis width """,
             "table_vase",
-            random.randint(1, 9999), 
+            random.randint(1, 9999),
         ),
         # You can keep adding more prompts for different chair parts here
     ]
 
-    threads = []
     result_queue = Queue()
 
     for prompt, filename, seed in prompts:
-        thread = threading.Thread(
-            target=process_prompt, args=(prompt, filename, seed, 18, 64, result_queue)
-        )
-        thread.start()
-        threads.append(thread)
-
-    for thread in threads:
-        thread.join()
+        process_prompt(prompt, filename, seed, 16, 64, result_queue)
 
     model_paths = [result_queue.get() for _ in prompts]
 
     # Check if all models were successfully generated
     if all(model_path is not None for model_path in model_paths):
         # Combine the models
-        combine_model('models/table_top.glb','models/table_vase.glb', "final_chair_model",'red','cyan')
+        combine_model(
+            model_paths[0],
+            model_paths[1],
+            "final_chair_model",
+            "red",
+            "cyan",
+        )
         # You can add more combining logic here for additional chair parts
         print("All chair components successfully combined into a final model.")
     else:
