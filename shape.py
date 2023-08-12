@@ -63,14 +63,15 @@ def process_prompt(prompt, filename, seed=1, guidance=16, steps=64, result_queue
 if __name__ == "__main__":
     prompts = [
         (
-            """Render a only rectangular tabletop for a standard dining table. The tabletop dimensions should be 120 cm in length and 80 cm in width, table color should be black.""",
+            """Render a legless invisible legged square tabletop for a standard dining table. The tabletop dimensions should be 80 cm in length and 80 cm in width.""",
             "table_top",
-            1236,
+            6654,
         ),
         (
-            """Render only four identical table legs for the The tabletop dimensions should be 120 cm in length and 80 cm in width. Each leg should have a height of 75 cm.""",
+            # """Render identical table  for the The tabletop dimensions should be 120 cm in length and 80 cm in width and 30cm thick. Each leg should have a height of 75 cm tabletop should be invisible.""",
+            "Render a topless invisible top, dining table. The tabletop dimensions should be 80 cm in length and 80 cm in width.",
             "table_legs",
-            5678,
+            2342,
         ),
         # You can keep adding more prompts for different chair parts here
     ]
@@ -80,7 +81,7 @@ if __name__ == "__main__":
 
     for prompt, filename, seed in prompts:
         thread = threading.Thread(
-            target=process_prompt, args=(prompt, filename, seed, 16, 64, result_queue)
+            target=process_prompt, args=(prompt, filename, seed, 18, 64, result_queue)
         )
         thread.start()
         threads.append(thread)
