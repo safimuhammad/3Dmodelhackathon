@@ -5,7 +5,7 @@ import threading
 import requests
 import trimesh
 from queue import Queue
-
+import random
 
 def get_model(prompt, filename, seed=1, guidance=16, steps=64):
     try:
@@ -38,20 +38,37 @@ def get_model(prompt, filename, seed=1, guidance=16, steps=64):
 
 
 def combine_model(model1, model2, filename):
-    chair_glb = trimesh.load(model1)
-    chair_glb.export(f"{model1[:-4]}.obj")
-    chair = trimesh.load_mesh(f"{model1[:-4]}.obj")
+    print(model1,"     ",model2)
+    
+    increase_scale = 2.3
+    decrease_scale = 0.2
+    model1_glb = trimesh.load(model1)
+    model1_glb.export(f"{model1[:-4]}.obj")
+   
+    first_model = trimesh.load_mesh(f"{model1[:-4]}.obj")
+    first_model.vertices *= increase_scale
+    
+    min_y, max_y = first_model.bounds[:, 1]
+    height = (max_y - min_y)/1.5
+    
+    # Calculate the desired offset for the second model based on the height of the first model
+    y_offset = height
 
-    seat_glb = trimesh.load(model2)
-    seat_glb.export(f"{model2[:-4]}.obj")
-    seat = trimesh.load_mesh(f"{model2[:-4]}.obj")
-    combined = trimesh.util.concatenate(chair, seat)
+    model2_glb = trimesh.load(model2)
+    model2_glb.export(f"{model2[:-4]}.obj")
+    second_model = trimesh.load_mesh(f"{model2[:-4]}.obj")
+    # second_model.apply_scale(increase_scale)
+    second_model.vertices *= decrease_scale
+    second_model.vertices[:, 1] += y_offset
+
+
+    combined = trimesh.util.concatenate(first_model,second_model)
 
     # Save the combined mesh to a new .obj file
     combined.export(f"models/{filename}.glb")
 
 
-def process_prompt(prompt, filename, seed=1, guidance=16, steps=64, result_queue=None):
+def process_prompt(prompt, filename, seed=1, guidance=18, steps=64, result_queue=None):
     result = get_model(prompt, filename, seed, guidance, steps)
     if result:
         model_path = f"models/{filename}.glb"
@@ -61,17 +78,18 @@ def process_prompt(prompt, filename, seed=1, guidance=16, steps=64, result_queue
 
 
 if __name__ == "__main__":
+    seed_value = random.randint(1, 9999)
     prompts = [
         (
-            """Render a legless invisible legged square tabletop for a standard dining table. The tabletop dimensions should be 80 cm in length and 80 cm in width.""",
+            """Render a round top, dining table with three legs. The tabletop dimensions should be 380 cm in length and 380 cm in width.""",
             "table_top",
-            6654,
+             random.randint(1, 9999),
         ),
         (
             # """Render identical table  for the The tabletop dimensions should be 120 cm in length and 80 cm in width and 30cm thick. Each leg should have a height of 75 cm tabletop should be invisible.""",
-            "Render a topless invisible top, dining table. The tabletop dimensions should be 80 cm in length and 80 cm in width.",
-            "table_legs",
-            2342,
+            """a vase of flowers, length 8cm x-axis length and 8cm y-axis width """,
+            "table_vase",
+            random.randint(1, 9999), 
         ),
         # You can keep adding more prompts for different chair parts here
     ]
@@ -81,7 +99,7 @@ if __name__ == "__main__":
 
     for prompt, filename, seed in prompts:
         thread = threading.Thread(
-            target=process_prompt, args=(prompt, filename, seed, 18, 64, result_queue)
+            target=process_prompt, args=(prompt, filename, seed, 16, 64, result_queue)
         )
         thread.start()
         threads.append(thread)
@@ -94,7 +112,7 @@ if __name__ == "__main__":
     # Check if all models were successfully generated
     if all(model_path is not None for model_path in model_paths):
         # Combine the models
-        combine_model(model_paths[0], model_paths[1], "final_chair_model")
+        combine_model('models/table_top.glb','models/table_vase.glb', "final_chair_model")
         # You can add more combining logic here for additional chair parts
         print("All chair components successfully combined into a final model.")
     else:
