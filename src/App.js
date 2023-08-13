@@ -5,18 +5,22 @@ import { useState } from 'react';
 import './App.css';
 import ModelViewer from './ModelViewer';
 import axios from 'axios';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import VideoPlayer from './Videoplayer';
+
 
 
 
 
 function App() {
+  // const modelViewerRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Tab 1');
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
-  const [showModelViewer, setShowModelViewer] = useState(false);
-  const [modelUrl, setModelUrl] = useState('');
-
+  const [showModelViewer, setShowModelViewer] = useState(true);
+  const [modelUrl, setModelUrl] = useState(true);
+  const [modelLoaded, setModelLoaded] = useState(false);
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
@@ -24,29 +28,79 @@ function App() {
   const handleFormSubmit = async (event) => {
     if (prompt.trim() !== '') {
       try {
-        const filename = "chair"; 
+        console.log('api hitt')
+        const filename = "table";
         const seed = 1;
-        const guidance = 16; 
-        const steps = 64; 
-  
+        const guidance = 16;
+        const steps = 64;
+
         const response = await axios.get(`http://localhost:8000/get_model/${prompt}`, {
           params: {
+            filename: filename,
             seed: seed,
             guidance: guidance,
             steps: steps,
-            filename: filename,
+
           },
-        });
-        console.log(response)
-        if (response.data && response.data.modelUrl) {
-          setModelUrl(response.data.modelUrl);
-          
+        },
+        { responseType: 'arraybuffer' }
+        );
+
+
+        const contentType = response.headers['content-type'];
+
+        if (contentType === 'application/json') {
+          // Handle JSON response
+          console.log('Received JSON response:', response.data);
+          if (response.data && response.data.modelUrl) {
+            setModelUrl(response.data.modelUrl);
+          } else {
+            console.error('Invalid JSON response:', response.data);
+            // Handle the case where the JSON response doesn't contain the expected data
+          }
+        } else if (contentType === 'application/octet-stream') {
+          // Handle binary response
+
+          console.log('Received binary response:', response);
+        //   const loader = new GLTFLoader();
+        //   const data = new Uint8Array(response.data);
+        //   loader.parse(data.buffer, '', (gltf) s=> {
+        //   setModelLoaded(gltf.scene);
+        //   console.log(modelLoaded,"modelloaded")
+        // });
+
+        // Create a Blob from the response data
+        const blob = new Blob([response.data], { type: contentType });
+
+        // Create a URL for the Blob
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Set the URL to your state if needed
+        setModelUrl(blobUrl);
+
+        // Create a link element and simulate a click to download the file
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'file.glb'; // Set the desired file name
+        link.click();
+
+        // Clean up the URL and the link element
+        URL.revokeObjectURL(blobUrl);
+
+        console.log('.glb file downloaded successfully');
+
         } else {
-          console.error('Invalid response:', response.data);
-          // Handle the case where the API response doesn't contain the expected model URL
+          console.warn('Received response with unexpected content type:', contentType);
+          // Handle other types if necessary
         }
       } catch (error) {
-        console.error('An error occurred:', error.response); // Log error.response for more details
+        console.error('An error occurred:', error);
+
+        // If the error has a response property, log it
+        if (error.response) {
+          console.error('Response:', error.response);
+        }
+
         // Handle the error here
       }
       setMessages([...messages, { text: prompt, sender: 'user' }]);
@@ -195,8 +249,10 @@ function App() {
 
           {showModelViewer && (
             <div className="section wf-section">
-              <div className="container w-container"style={{border:"1px solid white", borderRadius:"15px", background:"Black"}}>
-              {modelUrl && <ModelViewer modelUrl={modelUrl} />}
+              <div className="container w-container" style={{border: "1px solid white", borderRadius: "15px", background: "Black",width: '1000px', height: '1000px' }}>
+                {/* {modelUrl && <ModelViewer/>} */}
+                <VideoPlayer />
+
               </div>
             </div>
           )}

@@ -1977,7 +1977,6 @@ body.body {
        font-display: swap;
        font-style: normal;
 }
-/* /Fonts/ClashGrotesk-Extralight.woff2 */
 @font-face {
   font-family: 'ClashGrotesk-Extralight';
   src: url('./Fonts/ClashGrotesk-Extralight.woff2') format('woff2'),
