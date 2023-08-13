@@ -138,7 +138,7 @@ if __name__ == "__main__":
     # Check if all models were successfully generated
     if all(model_path is not None for model_path in model_paths):
         # Combine the models
-        combine_model('models/table_top.glb','models/table_vase.glb', "final_chair_model",'red','cyan')
+        combine_model('models/table_top.glb','models/table_vase.glb', "final_chair_model",'brown','olive')
         # You can add more combining logic here for additional chair parts
         print("All chair components successfully combined into a final model.")
     else:
