@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import axios from 'axios';
 
 function ModelViewer() {
   const containerRef = useRef(null);
@@ -32,41 +31,20 @@ function ModelViewer() {
     const light = new THREE.DirectionalLight(0xffffff, 6);
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
+
     let model = null;
       const loader = new GLTFLoader();
-      const filename = "table";
-      const seed = 1;
-      const guidance = 16;
-      const steps = 64;
-      axios.get(`http://localhost:8000/get_model/${'a table'}`, {
-        params: {
-          filename: filename,
-          seed: seed,
-          guidance: guidance,
-          steps: steps,
-
-        }},
-      
-      { responseType: 'arraybuffer' })
-      .then(response => {
-        const data = new Uint8Array(response.data);
-        loader.parse(data, '', (gltf) => {
-          const model = gltf.scene;
-          console.log(model)
-          scene.add(model)})});
-
-      // loader.load("/assets/models/Sarcosuchus.glb", (gltf) => {
-      //   try {
-      //     model = gltf.scene;
-      //     console.log(model)
-      //     scene.add(model);
-      //     console.log('Model loaded:', model);
-      //   } catch (error) {
-      //     console.error('Error adding model to scene:', error);
-      //   }
-      // }, undefined, (error) => {
-      //   console.error('Error loading GLTF model:', error);
-      // });
+      loader.load("/assets/models/file.glb", (gltf) => {
+        try {
+          model = gltf.scene;
+          scene.add(model);
+          console.log('Model loaded:', model);
+        } catch (error) {
+          console.error('Error adding model to scene:', error);
+        }
+      }, undefined, (error) => {
+        console.error('Error loading GLTF model:', error);
+      });
     
     // Function to handle mouse down event
     function onMouseDown(event) {
