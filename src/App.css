@@ -1928,42 +1928,42 @@ body.body {
 
 @font-face {
   font-family: 'Clashgrotesk';
-  src: url('./fonts/ClashGrotesk-Extralight.otf') format('opentype');
+  src: url('./Fonts/ClashGrotesk-Extralight.otf') format('opentype');
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Clashgrotesk';
-  src: url('./fonts/ClashGrotesk-Bold.otf') format('opentype');
+  src: url('./Fonts/ClashGrotesk-Bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Clashgrotesk';
-  src: url('./fonts/ClashGrotesk-Light.otf') format('opentype');
+  src: url('./Fonts/ClashGrotesk-Light.otf') format('opentype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Clashgrotesk';
-  src: url('./fonts/ClashGrotesk-Medium.otf') format('opentype');
+  src: url('./Fonts/ClashGrotesk-Medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Clashgrotesk';
-  src: url('./fonts/ClashGrotesk-Regular.otf') format('opentype');
+  src: url('./Fonts/ClashGrotesk-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Clashgrotesk';
-  src: url('./fonts/ClashGrotesk-Semibold.otf') format('opentype');
+  src: url('./Fonts/ClashGrotesk-Semibold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -1977,6 +1977,7 @@ body.body {
        font-display: swap;
        font-style: normal;
 }
+/* /Fonts/ClashGrotesk-Extralight.woff2 */
 @font-face {
   font-family: 'ClashGrotesk-Extralight';
   src: url('./Fonts/ClashGrotesk-Extralight.woff2') format('woff2'),
