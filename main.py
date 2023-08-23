@@ -6,9 +6,18 @@ from fastapi.responses import FileResponse
 import requests
 from shape import get_model,combine_model
 import random
+from fastapi.middleware.cors import CORSMiddleware
 # Assuming you have imported the necessary libraries
 
 app = FastAPI()
+# Configure CORS settings to allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from any origin
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/get_model/{prompt}")
 async def get_model(prompt: str, filename: str, seed: int = 1, guidance: int = 16, steps: int = 64):
@@ -41,7 +50,7 @@ async def get_model(prompt: str, filename: str, seed: int = 1, guidance: int = 1
         raise HTTPException(status_code=500, detail=f"An error occurred: {general_err}")
 
 @app.get("/add_model/{prompt}")
-async def add_model(prompt:str,filename:str,model1:str,color1:str,color2:str,guidance: int = 16 ):
+async def add_model(prompt:str,filename:str,model1:str,color1:str = None,color2:str=None,guidance: int = 16  ):
     random.seed(random.randint(1, 9999))
     await get_model(prompt,filename,random.randint(1, 9999),guidance)
     if get_model:

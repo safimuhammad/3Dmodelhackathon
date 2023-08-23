@@ -45,6 +45,7 @@ def combine_model(model1=None, model2=None, filename=None, color1=None, color2=N
         return None
     if filename == None:
         return None
+    
     colors = {
         "red": [255, 0, 0, 255],
         "green": [0, 255, 0, 255],
@@ -66,16 +67,17 @@ def combine_model(model1=None, model2=None, filename=None, color1=None, color2=N
     }
 
     increase_scale = 2.3
-    decrease_scale = 0.2
+    decrease_scale = 0.3
     model1_glb = trimesh.load(model1)
     model1_glb.export(f"{model1[:-4]}.obj")
 
     first_model = trimesh.load_mesh(f"{model1[:-4]}.obj")
     first_model.vertices *= increase_scale
-    first_model.visual.vertex_colors = colors[color1.lower()]
+    if color1 != None : 
+        first_model.visual.vertex_colors = colors[color1.lower()] 
 
     min_y, max_y = first_model.bounds[:, 1]
-    height = (max_y - min_y) / 1.5
+    height = (max_y - min_y) / 1.6
 
     # Calculate the desired offset for the second model based on the height of the first model
     y_offset = height
@@ -85,7 +87,8 @@ def combine_model(model1=None, model2=None, filename=None, color1=None, color2=N
     second_model = trimesh.load_mesh(f"{model2[:-4]}.obj")
     # second_model.apply_scale(increase_scale)
     second_model.vertices *= decrease_scale
-    second_model.visual.vertex_colors = colors[color2.lower()]
+    if color2 != None:
+        second_model.visual.vertex_colors = colors[color2.lower()]
     second_model.vertices[:, 1] += y_offset
 
     combined = trimesh.util.concatenate(first_model, second_model)
